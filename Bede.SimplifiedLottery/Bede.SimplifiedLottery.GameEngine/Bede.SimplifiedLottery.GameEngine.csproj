@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Bede.SimplifiedLottery.Domain\Bede.SimplifiedLottery.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
