@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bede.SimplifiedLottery", "Bede.SimplifiedLottery\Bede.SimplifiedLottery.csproj", "{5F464C06-5DAC-45FF-8970-62BF26E3057B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bede.SimplifiedLottery.UI", "Bede.SimplifiedLottery.UI\Bede.SimplifiedLottery.UI.csproj", "{CDE54601-2739-4683-8D40-1B2F84898161}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5F464C06-5DAC-45FF-8970-62BF26E3057B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F464C06-5DAC-45FF-8970-62BF26E3057B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F464C06-5DAC-45FF-8970-62BF26E3057B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F464C06-5DAC-45FF-8970-62BF26E3057B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDE54601-2739-4683-8D40-1B2F84898161}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDE54601-2739-4683-8D40-1B2F84898161}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDE54601-2739-4683-8D40-1B2F84898161}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDE54601-2739-4683-8D40-1B2F84898161}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {ADAFDD38-8B02-4944-AC5D-3580EDF020CD}
+		SolutionGuid = {77A9E7A3-347D-4107-BAE4-1103257B285E}
 	EndGlobalSection
 EndGlobal
