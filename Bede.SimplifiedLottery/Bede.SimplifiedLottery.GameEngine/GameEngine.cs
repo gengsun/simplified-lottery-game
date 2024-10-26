@@ -48,13 +48,11 @@ namespace Bede.SimplifiedLottery.GameEngine
             var thirdTierPrize = DrawTickets(DrawStatus.ThirdTier);
 
             int houseRevenue = _ticketRepository.GetCount() * _strategy.GetTicketPrice();
-            var tickets = _ticketRepository.GetWinners();
-            foreach (var ticket in tickets)
+            var winningTickets = _ticketRepository.GetWinners();
+            foreach (var ticket in winningTickets)
             {
                 if (ticket.PrizeAmount != default) houseRevenue -= ticket.PrizeAmount;
             }
-
-            var winningTickets = _ticketRepository.GetWinners();
 
             return new DrawResult(
                 grandPrize.ToDisplayString(),
