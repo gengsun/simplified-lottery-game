@@ -51,7 +51,7 @@ namespace Bede.SimplifiedLottery.GameEngine
             var winningTickets = _ticketRepository.GetWinners();
             foreach (var ticket in winningTickets)
             {
-                if (ticket.PrizeAmount != default) houseRevenue -= ticket.PrizeAmount;
+                houseRevenue -= ticket.PrizeAmount;
             }
 
             return new DrawResult(

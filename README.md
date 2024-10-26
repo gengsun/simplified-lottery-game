@@ -22,5 +22,5 @@ The above sentence from the task description seems quite confusing to me. I wrot
 
 - The purpose of the `Bede.SimplifiedLottery.IoC` project is to provide a central Inversion of Control point for dependency injection.
 
-- `appsettings.json` is for the settings and configurations of the game. It is mapped to the `GameSettings` class which is a bit chunky. The reason for that was I wanted to do some in-place validation of the configuration.
+- `appsettings.json` is for the settings and configurations of the game, and is mapped to the `GameSettings` class. `GameSettings` is a bit of a chunky class because I wanted to do some in-place validation of the configuration.
 
