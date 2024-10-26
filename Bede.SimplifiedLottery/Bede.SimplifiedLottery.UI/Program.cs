@@ -1,6 +1,5 @@
 ﻿using Bede.SimplifiedLottery.Domain.Enums;
-using Bede.SimplifiedLottery.Domain.Extensions;
-using Bede.SimplifiedLottery.Domain.Interfaces;
+using Bede.SimplifiedLottery.Domain.Interfaces.GameEngine;
 using Bede.SimplifiedLottery.IoC;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,11 +25,18 @@ static void Play(IServiceProvider hostProvider)
     using IServiceScope serviceScope = hostProvider.CreateScope();
     IGameEngine gameEngine = serviceScope.ServiceProvider.GetRequiredService<IGameEngine>();
 
-    Initialise(gameEngine);
-    PurchaseTickets(gameEngine);
-    Draw(gameEngine);
+    while (true)
+    {
+        Initialise(gameEngine);
+        PurchaseTickets(gameEngine);
+        Draw(gameEngine);
 
-    Console.ReadLine();
+        Console.WriteLine($"\nPress Enter to play again or any other key to exit...\n");
+        var keyInfo = Console.ReadKey();
+        if (keyInfo.Key != ConsoleKey.Enter) break;
+
+        gameEngine.Reset();
+    }
 }
 
 static void Initialise(IGameEngine gameEngine)
@@ -48,12 +54,12 @@ static void PurchaseTickets(IGameEngine gameEngine)
     if (!int.TryParse(Console.ReadLine(), out var input)) input = 10;
     var purchaseResult = gameEngine.PurchaseTickets(input);
 
-    Console.WriteLine($"\n{purchaseResult.NumberOfCpuPlayers} CPU players also have purchased tickets.\n");
+    Console.WriteLine($"\n{purchaseResult.NumberOfCpuPlayers} CPU players have also purchased tickets.\n");
 
     foreach (var player in purchaseResult.Players)
     {
-        var playerTickets = purchaseResult.Tickets.Where(t => t.PlayerId == player.Id);
-        Console.WriteLine($"{player.Name} purchased {playerTickets.Count()} ticket(s): {string.Join(", ", playerTickets.Select(p => p.Id))}");
+        string ticketIds = string.Join(", ", player.Tickets.Select(p => p.Id));
+        Console.WriteLine($"{player.Name} purchased {player.Tickets.Count} ticket(s): {ticketIds}");
     }
 }
 
@@ -66,23 +72,18 @@ static void Draw(IGameEngine gameEngine)
     var grandPrizeTicket = drawResult.Tickets.Single(t => t.DrawStatus == DrawStatus.GrandPrize);
     var secondTierTickets = drawResult.Tickets.Where(t => t.DrawStatus == DrawStatus.SecondTier);
     var thirdTierTickets = drawResult.Tickets.Where(t => t.DrawStatus == DrawStatus.ThirdTier);
+    var secondTierTicketIds = string.Join(", ", secondTierTickets.Select(r => r.Id));
+    var thirdTierTicketIds = string.Join(", ", thirdTierTickets.Select(r => r.Id));
 
     Console.WriteLine($"\nTicket Draw Results:");
-    Console.WriteLine($"\n* Grand Prize: Ticket {grandPrizeTicket.Id} wins {grandPrizeTicket.PrizeAmount.ToDisplayString()}!");
-    Console.WriteLine($"* Second Tier: Tickets {string.Join(", ", secondTierTickets.Select(r => r.Id))} win {secondTierTickets.First().PrizeAmount.ToDisplayString()} each!");
-    Console.WriteLine($"* Third Tier: Tickets {string.Join(", ", thirdTierTickets.Select(r => r.Id))} win {thirdTierTickets.First().PrizeAmount.ToDisplayString()} each!\n");
+    Console.WriteLine($"\n* Grand Prize: Ticket {grandPrizeTicket.Id} wins {drawResult.GrandPrize}!");
+    Console.WriteLine($"* Second Tier: Tickets {secondTierTicketIds} win {drawResult.SecondTierPrize} each!");
+    Console.WriteLine($"* Third Tier: Tickets {thirdTierTicketIds} win {drawResult.ThirdTierPrize} each!\n");
 
-    var ticketGroups = drawResult.Tickets.Where(t => t.DrawStatus != DrawStatus.NotSet).GroupBy(t => t.PlayerId);
-    foreach (var ticketGroup in ticketGroups)
+    foreach (var player in drawResult.Players)
     {
-        var player = drawResult.Players.Single(p => p.Id == ticketGroup.Key);
-        int prizeAmount = 0;
-        foreach (var ticket in ticketGroup)
-        {
-            prizeAmount += ticket.PrizeAmount;
-        }
-
-        Console.WriteLine($"{player.Name} wins {prizeAmount.ToDisplayString()} with ticket(s): {string.Join(", ", ticketGroup.Select(r => r.Id))}");
+        string ticketIds = string.Join(", ", player.Tickets.Select(p => p.Id));
+        Console.WriteLine($"{player.Name} wins {player.Winning} with ticket(s): {ticketIds}");
     }
 
     Console.WriteLine("\nCongratulations to the winners!");

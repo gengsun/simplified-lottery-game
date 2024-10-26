@@ -1,6 +1,6 @@
 ﻿using Bede.SimplifiedLottery.Domain.Entities;
 using Bede.SimplifiedLottery.Domain.Enums;
-using Bede.SimplifiedLottery.Domain.Interfaces;
+using Bede.SimplifiedLottery.Domain.Interfaces.GameEngine;
 using Bede.SimplifiedLottery.Domain.Settings;
 
 namespace Bede.SimplifiedLottery.GameEngine

@@ -2,7 +2,7 @@
 using Bede.SimplifiedLottery.Domain.Entities;
 using Bede.SimplifiedLottery.Domain.Enums;
 using Bede.SimplifiedLottery.Domain.Extensions;
-using Bede.SimplifiedLottery.Domain.Interfaces;
+using Bede.SimplifiedLottery.Domain.Interfaces.GameEngine;
 using Bede.SimplifiedLottery.Domain.Interfaces.Repositories;
 
 namespace Bede.SimplifiedLottery.GameEngine
@@ -38,15 +38,14 @@ namespace Bede.SimplifiedLottery.GameEngine
 
             return new PurchaseTicketsResult(
                 _playerRepository.GetAllByType<CpuPlayer>().Count,
-                _playerRepository.GetAll(),
-                _ticketRepository.GetAll());
+                GetPlayerDtos(_ticketRepository.GetAll()).ToList().AsReadOnly());
         }
 
         public DrawResult Draw()
         {
-            DrawTickets(DrawStatus.GrandPrize);
-            DrawTickets(DrawStatus.SecondTier);
-            DrawTickets(DrawStatus.ThirdTier);
+            var grandPrize = DrawTickets(DrawStatus.GrandPrize);
+            var secondTierPrize = DrawTickets(DrawStatus.SecondTier);
+            var thirdTierPrize = DrawTickets(DrawStatus.ThirdTier);
 
             int houseRevenue = _ticketRepository.GetCount() * _strategy.GetTicketPrice();
             var tickets = _ticketRepository.GetWinners();
@@ -55,13 +54,21 @@ namespace Bede.SimplifiedLottery.GameEngine
                 if (ticket.PrizeAmount != default) houseRevenue -= ticket.PrizeAmount;
             }
 
-            Console.WriteLine(_playerRepository.GetAll().Count);
-            Console.WriteLine(_ticketRepository.GetAll().Count);
+            var winningTickets = _ticketRepository.GetWinners();
 
             return new DrawResult(
-                _playerRepository.GetAll(),
-                _ticketRepository.GetAll(),
+                grandPrize.ToDisplayString(),
+                secondTierPrize.ToDisplayString(),
+                thirdTierPrize.ToDisplayString(),
+                GetPlayerDtos(winningTickets).ToList().AsReadOnly(),
+                winningTickets,
                 houseRevenue.ToDisplayString());
+        }
+
+        public void Reset()
+        {
+            _playerRepository.Reset();
+            _ticketRepository.Reset();
         }
 
         private void Purchase<T>(int? userTicketCount = null) where T : Player, new()
@@ -86,7 +93,7 @@ namespace Bede.SimplifiedLottery.GameEngine
             }
         }
 
-        private void DrawTickets(DrawStatus drawStatus)
+        private int DrawTickets(DrawStatus drawStatus)
         {
             (int ticketCount, int prizeAmount) = _strategy.GetTicketCountAndPrizeAmountForTier(drawStatus, _ticketRepository.GetCount());
 
@@ -98,6 +105,25 @@ namespace Bede.SimplifiedLottery.GameEngine
                 _ticketRepository.Update(ticketIds[ran], drawStatus, prizeAmount);
 
                 count++;
+            }
+
+            return prizeAmount;
+        }
+
+        private IEnumerable<PlayerDto> GetPlayerDtos(IReadOnlyCollection<Ticket> tickets)
+        {
+            var ticketGroups = tickets.GroupBy(t => t.PlayerId);
+            foreach (var ticketGroup in ticketGroups)
+            {
+                var name = _playerRepository.GetNameById(ticketGroup.Key);
+
+                int winning = 0;
+                foreach (var ticket in ticketGroup)
+                {
+                    winning += ticket.PrizeAmount;
+                }
+
+                yield return new PlayerDto(name, ticketGroup.ToList().AsReadOnly(), winning.ToDisplayString());
             }
         }
     }

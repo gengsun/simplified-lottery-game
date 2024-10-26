@@ -1,5 +1,6 @@
 ﻿using Bede.SimplifiedLottery.Domain.Entities;
 using Bede.SimplifiedLottery.Domain.Enums;
+using Bede.SimplifiedLottery.Domain.Exceptions;
 using Bede.SimplifiedLottery.Domain.Interfaces.Repositories;
 
 namespace Bede.SimplifiedLottery.Repository
@@ -16,7 +17,7 @@ namespace Bede.SimplifiedLottery.Repository
 
         public void Update(int id, DrawStatus drawStatus, int PrizeAmount)
         {
-            var ticket = _entities.SingleOrDefault(entity => entity.Id == id) ?? throw new ArgumentNullException($"Ticket {id} not found");
+            var ticket = _entities.SingleOrDefault(entity => entity.Id == id) ?? throw new NotFoundException($"Ticket {id} not found");
 
             Execute(() =>
             {

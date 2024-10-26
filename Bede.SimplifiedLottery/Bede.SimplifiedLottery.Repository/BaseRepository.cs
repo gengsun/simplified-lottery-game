@@ -21,6 +21,15 @@ namespace Bede.SimplifiedLottery.Repository
 
         public IReadOnlyCollection<TEntity> GetAll() => _entities.ToList().AsReadOnly();
 
+        public void Reset()
+        {
+            Execute(() =>
+            {
+                _id = 0;
+                _entities = [];
+            });
+        }
+
         protected void Execute(Action action)
         {
             _semaphore.Wait();

@@ -1,5 +1,5 @@
 ﻿using Bede.SimplifiedLottery.Domain.Exceptions;
-using Bede.SimplifiedLottery.Domain.Interfaces;
+using Bede.SimplifiedLottery.Domain.Interfaces.GameEngine;
 using Bede.SimplifiedLottery.Domain.Interfaces.Repositories;
 using Bede.SimplifiedLottery.Domain.Settings;
 using Bede.SimplifiedLottery.GameEngine;

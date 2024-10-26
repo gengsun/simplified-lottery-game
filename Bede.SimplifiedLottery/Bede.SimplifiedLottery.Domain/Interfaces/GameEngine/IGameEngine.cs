@@ -1,6 +1,6 @@
 ﻿using Bede.SimplifiedLottery.Domain.DTOs;
 
-namespace Bede.SimplifiedLottery.Domain.Interfaces
+namespace Bede.SimplifiedLottery.Domain.Interfaces.GameEngine
 {
     public interface IGameEngine
     {
@@ -9,5 +9,7 @@ namespace Bede.SimplifiedLottery.Domain.Interfaces
         PurchaseTicketsResult PurchaseTickets(int numOfUserTickets);
 
         DrawResult Draw();
+
+        void Reset();
     }
 }

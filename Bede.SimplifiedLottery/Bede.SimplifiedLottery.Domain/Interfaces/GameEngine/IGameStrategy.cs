@@ -1,7 +1,7 @@
 ﻿using Bede.SimplifiedLottery.Domain.Entities;
 using Bede.SimplifiedLottery.Domain.Enums;
 
-namespace Bede.SimplifiedLottery.Domain.Interfaces
+namespace Bede.SimplifiedLottery.Domain.Interfaces.GameEngine
 {
     public interface IGameStrategy
     {

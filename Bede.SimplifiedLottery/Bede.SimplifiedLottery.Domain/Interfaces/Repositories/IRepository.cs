@@ -6,5 +6,7 @@ namespace Bede.SimplifiedLottery.Domain.Interfaces.Repositories
     {
         void Add(TEntity entity);
         IReadOnlyCollection<TEntity> GetAll();
+
+        void Reset();
     }
 }

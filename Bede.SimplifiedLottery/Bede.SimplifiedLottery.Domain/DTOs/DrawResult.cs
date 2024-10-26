@@ -3,7 +3,10 @@
 namespace Bede.SimplifiedLottery.Domain.DTOs
 {
     public record class DrawResult(
-        IReadOnlyCollection<Player> Players,
+        string GrandPrize,
+        string SecondTierPrize,
+        string ThirdTierPrize,
+        IReadOnlyCollection<PlayerDto> Players,
         IReadOnlyCollection<Ticket> Tickets,
         string HouseRevenue);
 }
