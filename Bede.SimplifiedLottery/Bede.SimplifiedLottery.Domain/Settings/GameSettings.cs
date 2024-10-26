@@ -98,7 +98,7 @@ namespace Bede.SimplifiedLottery.Domain.Settings
         public int ThirdTierTicketPercentage
         {
             get => _thirdTierTicketPercentage;
-            init => _thirdTierTicketPercentage = value < ThirdTierTicketPercentage
+            init => _thirdTierTicketPercentage = value < SecondTierTicketPercentage
                 ? throw new InvalidConfigurationException(nameof(ThirdTierTicketPercentage))
                 : value;
         }
