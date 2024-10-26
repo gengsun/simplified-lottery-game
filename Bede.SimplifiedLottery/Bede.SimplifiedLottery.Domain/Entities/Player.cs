@@ -1,9 +1,7 @@
 ﻿namespace Bede.SimplifiedLottery.Domain.Entities
 {
-    public abstract class Player
+    public abstract class Player : BaseEntity
     {
-        public int Id { get; init; }
-
         private string? _name;
         public string Name
         {

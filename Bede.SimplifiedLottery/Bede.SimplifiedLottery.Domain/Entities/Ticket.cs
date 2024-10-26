@@ -2,10 +2,9 @@
 
 namespace Bede.SimplifiedLottery.Domain.Entities
 {
-    public class Ticket
+    public class Ticket : BaseEntity
     {
-        public int Id { get; init; }
-        public int PlayerId { get; init; }
+        public int PlayerId { get; set; }
         public DrawStatus DrawStatus { get; set; } = DrawStatus.NotSet;
         public int PrizeAmount { get; set; }
     }

@@ -3,30 +3,30 @@ using Bede.SimplifiedLottery.Domain.Entities;
 using Bede.SimplifiedLottery.Domain.Enums;
 using Bede.SimplifiedLottery.Domain.Extensions;
 using Bede.SimplifiedLottery.Domain.Interfaces;
+using Bede.SimplifiedLottery.Domain.Interfaces.Repositories;
 
 namespace Bede.SimplifiedLottery.GameEngine
 {
-    public class GameEngine(IGameStrategy strategy) : IGameEngine
+    public class GameEngine : IGameEngine
     {
-        private readonly IGameStrategy _strategy = strategy;
+        private readonly IGameStrategy _strategy;
+        private readonly IPlayerRepository _playerRepository;
+        private readonly ITicketRepository _ticketRepository;
 
-        private int _playerId = 0;
-        private readonly ICollection<Player> _players = [];
-
-        private int _ticketId = 0;
-        private readonly ICollection<Ticket> _tickets = [];
-
-        private readonly SemaphoreSlim _gameEngineSemaphore = new(1, 1);
+        public GameEngine(IGameStrategy strategy, IPlayerRepository playerRepository, ITicketRepository ticketRepository)
+        {
+            _strategy = strategy;
+            _playerRepository = playerRepository;
+            _ticketRepository = ticketRepository;
+        }
 
         public InitialisationResult Initialise()
         {
             CreatePlayers<UserPlayer>();
             CreatePlayers<CpuPlayer>();
 
-            var userPlayer = _players.SingleOrDefault(p => p.GetType() == typeof(UserPlayer)) ?? throw new ArgumentNullException("User Player");
-
             return new InitialisationResult(
-                userPlayer.Name,
+                _playerRepository.GetUserPlayer().Name,
                 _strategy.GetStartBalance().ToDisplayString(),
                 _strategy.GetTicketPrice().ToDisplayString());
         }
@@ -37,9 +37,9 @@ namespace Bede.SimplifiedLottery.GameEngine
             Purchase<CpuPlayer>();
 
             return new PurchaseTicketsResult(
-                _players.Where(p => p.GetType() == typeof(CpuPlayer)).Count(),
-                _players.ToList().AsReadOnly(),
-                _tickets.ToList().AsReadOnly());
+                _playerRepository.GetAllByType<CpuPlayer>().Count,
+                _playerRepository.GetAll(),
+                _ticketRepository.GetAll());
         }
 
         public DrawResult Draw()
@@ -48,27 +48,31 @@ namespace Bede.SimplifiedLottery.GameEngine
             DrawTickets(DrawStatus.SecondTier);
             DrawTickets(DrawStatus.ThirdTier);
 
-            int houseRevenue = _tickets.Count * _strategy.GetTicketPrice();
-            foreach (var ticket in _tickets)
+            int houseRevenue = _ticketRepository.GetCount() * _strategy.GetTicketPrice();
+            var tickets = _ticketRepository.GetWinners();
+            foreach (var ticket in tickets)
             {
                 if (ticket.PrizeAmount != default) houseRevenue -= ticket.PrizeAmount;
             }
 
+            Console.WriteLine(_playerRepository.GetAll().Count);
+            Console.WriteLine(_ticketRepository.GetAll().Count);
+
             return new DrawResult(
-                _players.ToList().AsReadOnly(),
-                _tickets.ToList().AsReadOnly(),
+                _playerRepository.GetAll(),
+                _ticketRepository.GetAll(),
                 houseRevenue.ToDisplayString());
         }
 
         private void Purchase<T>(int? userTicketCount = null) where T : Player, new()
         {
-            var players = _players.Where(p => p.GetType() == typeof(T));
+            var players = _playerRepository.GetAllByType<T>();
             foreach (var player in players)
             {
                 int ticketCount = _strategy.GetTicketCount<T>(userTicketCount);
                 for (int i = 0; i < ticketCount; i++)
                 {
-                    Execute(() => _tickets.Add(new Ticket { Id = ++_ticketId, PlayerId = player.Id }));
+                    _ticketRepository.Add(new Ticket { PlayerId = player.Id });
                 }
             }
         }
@@ -78,38 +82,23 @@ namespace Bede.SimplifiedLottery.GameEngine
             int playerCount = _strategy.GetPlayerCount<T>();
             for (int i = 0; i < playerCount; i++)
             {
-                Execute(() => _players.Add(new T { Id = ++_playerId }));
+                _playerRepository.Add(new T());
             }
         }
 
         private void DrawTickets(DrawStatus drawStatus)
         {
-            (int ticketCount, int prizeAmount) = _strategy.GetTicketCountAndPrizeAmountForTier(drawStatus, _tickets.Count);
+            (int ticketCount, int prizeAmount) = _strategy.GetTicketCountAndPrizeAmountForTier(drawStatus, _ticketRepository.GetCount());
 
             int count = 0;
             while (count < ticketCount)
             {
-                int[] ticketIds = _tickets.Where(t => t.DrawStatus == DrawStatus.NotSet).Select(t => t.Id).ToArray();
+                int[] ticketIds = _ticketRepository.GetNonWinners().Select(t => t.Id).ToArray();
                 int ran = new Random().Next(0, ticketIds.Length);
-                var ticket = _tickets.Single(t => t.Id == ticketIds[ran]);
-
-                Execute(() =>
-                {
-                    ticket.DrawStatus = drawStatus;
-                    ticket.PrizeAmount = prizeAmount;
-                });
+                _ticketRepository.Update(ticketIds[ran], drawStatus, prizeAmount);
 
                 count++;
             }
-        }
-
-        private void Execute(Action action)
-        {
-            _gameEngineSemaphore.Wait();
-
-            action();
-
-            _gameEngineSemaphore.Release();
         }
     }
 }

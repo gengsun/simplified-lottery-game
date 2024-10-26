@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Bede.SimplifiedLottery.Domain\Bede.SimplifiedLottery.Domain.csproj" />
     <ProjectReference Include="..\Bede.SimplifiedLottery.GameEngine\Bede.SimplifiedLottery.GameEngine.csproj" />
+    <ProjectReference Include="..\Bede.SimplifiedLottery.Repository\Bede.SimplifiedLottery.Repository.csproj" />
   </ItemGroup>
 
 </Project>
